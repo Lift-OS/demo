@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lift O.S PRO - Sistema de Ordem de Serviço para Empilhadeiras</title>
+  <meta name="description" content="O sistema definitivo para gestão de manutenção de empilhadeiras. Controle de horímetro, preventivas, estoque e assinatura digital.">
+  
+  <!-- Fontes e Ícones -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    :root {
+      --primary: #ea580c;
+      --primary-light: #fb923c;
+      --primary-dark: #c2410c;
+      --bg-dark: #0f172a;
+      --bg-card: #1e293b;
+      --text-light: #f8fafc;
+      --text-muted: #94a3b8;
+      --border: #334155;
+      --success: #10b981;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-light);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* UTILITÁRIOS */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+    
+    .text-primary { color: var(--primary); }
+    .text-center { text-align: center; }
+    
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 16px 32px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 1.1rem;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      border: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      color: white;
+      box-shadow: 0 4px 14px rgba(234, 88, 12, 0.4);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(234, 88, 12, 0.6);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--text-light);
+      border: 2px solid var(--border);
+    }
+
+    .btn-outline:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    /* HEADER / NAV */
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 1000;
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 80px;
+    }
+
+    .logo {
+      font-size: 1.8rem;
+      font-weight: 900;
+      letter-spacing: 1px;
+      text-decoration: none;
+      color: white;
+    }
+
+    .logo span:nth-child(1) { font-style: italic; color: var(--text-muted); font-weight: 400; }
+    .logo span:nth-child(2) { font-style: italic; color: var(--primary); }
+
+    .nav-links {
+      display: flex;
+      gap: 30px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: var(--primary); }
+
+    .menu-toggle {
+      display: none;
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    /* HERO SECTION */
+    .hero {
+      padding-top: 160px;
+      padding-bottom: 100px;
+      background: radial-gradient(circle at 50% 50%, rgba(234, 88, 12, 0.15) 0%, var(--bg-dark) 70%);
+      position: relative;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+    }
+
+    .hero h1 {
+      font-size: 3.5rem;
+      line-height: 1.1;
+      margin-bottom: 24px;
+    }
+
+    .hero p {
+      font-size: 1.2rem;
+      color: var(--text-muted);
+      margin-bottom: 40px;
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .hero-mockup {
+      background: var(--bg-card);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      padding: 20px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      transform: perspective(1000px) rotateY(-5deg) rotateX(5deg);
+      transition: transform 0.5s ease;
+    }
+
+    .hero-mockup:hover {
+      transform: perspective(1000px) rotateY(0deg) rotateX(0deg);
+    }
+
+    .mockup-header {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 15px;
+    }
+
+    .mockup-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--border);
+    }
+
+    .mockup-content {
+      background: var(--bg-dark);
+      border-radius: 8px;
+      padding: 15px;
+    }
+
+    .mockup-line {
+      height: 10px;
+      background: var(--border);
+      border-radius: 4px;
+      margin-bottom: 10px;
+    }
+
+    .mockup-line.primary { background: var(--primary); width: 60%; }
+    .mockup-line.success { background: var(--success); width: 40%; }
+
+    /* PAIN POINTS */
+    .pain-section {
+      padding: 100px 0;
+      background: var(--bg-card);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .pain-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 30px;
+      margin-top: 60px;
+    }
+
+    .pain-card {
+      background: var(--bg-dark);
+      padding: 30px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      text-align: center;
+      transition: transform 0.3s;
+    }
+
+    .pain-card:hover { transform: translateY(-5px); }
+
+    .pain-icon {
+      font-size: 2.5rem;
+      color: #ef4444;
+      margin-bottom: 20px;
+    }
+
+    .pain-card h3 { margin-bottom: 10px; }
+    .pain-card p { color: var(--text-muted); font-size: 0.95rem; }
+
+    /* FEATURES */
+    .features-section {
+      padding: 100px 0;
+    }
+
+    .section-title {
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+    }
+
+    .section-subtitle {
+      color: var(--text-muted);
+      font-size: 1.2rem;
+      max-width: 700px;
+      margin: 0 auto 60px;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 30px;
+    }
+
+    .feature-card {
+      padding: 30px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(30,41,59,0.5) 0%, rgba(15,23,42,0) 100%);
+      transition: all 0.3s;
+    }
+
+    .feature-card:hover {
+      border-color: var(--primary);
+      box-shadow: 0 0 20px rgba(234, 88, 12, 0.1);
+    }
+
+    .feature-icon {
+      width: 50px;
+      height: 50px;
+      background: rgba(234, 88, 12, 0.1);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      color: var(--primary);
+      margin-bottom: 20px;
+    }
+
+    .feature-card h3 {
+      font-size: 1.3rem;
+      margin-bottom: 15px;
+    }
+
+    .feature-card p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    /* CTA SECTION */
+    .cta-section {
+      padding: 100px 0;
+      background: radial-gradient(circle at 50% 50%, rgba(234, 88, 12, 0.2) 0%, var(--bg-dark) 70%);
+      text-align: center;
+    }
+
+    .cta-section h2 {
+      font-size: 3rem;
+      margin-bottom: 20px;
+    }
+
+    .cta-section p {
+      font-size: 1.3rem;
+      color: var(--text-muted);
+      margin-bottom: 40px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* FOOTER */
+    footer {
+      background: #020617;
+      padding: 60px 0 30px;
+      border-top: 1px solid var(--border);
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 60px;
+      margin-bottom: 60px;
+    }
+
+    .footer-about p {
+      color: var(--text-muted);
+      margin-top: 15px;
+    }
+
+    .footer-links h4 {
+      margin-bottom: 20px;
+      font-size: 1.1rem;
+    }
+
+    .footer-links ul {
+      list-style: none;
+    }
+
+    .footer-links li {
+      margin-bottom: 10px;
+    }
+
+    .footer-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover { color: var(--primary); }
+
+    .footer-bottom {
+      border-top: 1px solid var(--border);
+      padding-top: 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    /* WHATSAPP FLOAT */
+    .whatsapp-float {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: #25D366;
+      color: white;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      text-decoration: none;
+      z-index: 999;
+      transition: transform 0.3s;
+    }
+
+    .whatsapp-float:hover {
+      transform: scale(1.1);
+    }
+
+    /* RESPONSIVIDADE */
+    @media (max-width: 900px) {
+      .hero-grid { grid-template-columns: 1fr; text-align: center; }
+      .hero h1 { font-size: 2.5rem; }
+      .hero-buttons { justify-content: center; }
+      .hero-mockup { transform: none; margin-top: 40px; }
+      .pain-grid, .features-grid { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: 1fr; gap: 30px; }
+      .footer-bottom { flex-direction: column; gap: 15px; text-align: center; }
+      
+      .nav-links { 
+        display: none; 
+        flex-direction: column;
+        position: absolute;
+        top: 80px;
+        left: 0;
+        width: 100%;
+        background: var(--bg-dark);
+        padding: 20px;
+        border-bottom: 1px solid var(--border);
+      }
+      .nav-links.active { display: flex; }
+      .menu-toggle { display: block; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="container">
+      <nav>
+        <a href="#" class="logo">LIFT <span>O.S</span></a>
+        <ul class="nav-links" id="navLinks">
+          <li><a href="#funcionalidades">Funcionalidades</a></li>
+          <li><a href="#vantagens">Vantagens</a></li>
+          <li><a href="#contato">Contato</a></li>
+          <li><a href="https://www.LiftOS.pro" target="_blank" class="btn btn-primary" style="padding: 10px 20px; font-size: 0.9rem;">Acessar Sistema</a></li>
+        </ul>
+        <button class="menu-toggle" onclick="document.getElementById('navLinks').classList.toggle('active')">
+          <i class="fas fa-bars"></i>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-grid">
+        <div class="hero-text">
+          <h1>O fim do papel na manutenção de <span class="text-primary">empilhadeiras</span></h1>
+          <p>Elimine o retrabalho e o caos do WhatsApp. Centralize ordens de serviço, controle de horímetro, estoque e assinaturas digitais em uma plataforma feita sob medida para a sua oficina.</p>
+          <div class="hero-buttons">
+            <a href="https://wa.me/5598988248877?text=Ol%C3%A1!%20Quero%20saber%20mais%20sobre%20o%20Lift%20OS%20PRO" class="btn btn-primary">
+              <i class="fab fa-whatsapp"></i> Fale com um Especialista
+            </a>
+            <a href="#funcionalidades" class="btn btn-outline">
+              <i class="fas fa-cogs"></i> Ver Funcionalidades
+            </a>
+          </div>
+        </div>
+        <div class="hero-mockup">
+          <div class="mockup-header">
+            <div class="mockup-dot"></div>
+            <div class="mockup-dot"></div>
+            <div class="mockup-dot"></div>
+          </div>
+          <div class="mockup-content">
+            <div class="mockup-line primary"></div>
+            <div class="mockup-line" style="width: 90%"></div>
+            <div class="mockup-line success"></div>
+            <div class="mockup-line" style="width: 70%"></div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px;">
+              <div style="background: var(--border); height: 60px; border-radius: 6px;"></div>
+              <div style="background: var(--border); height: 60px; border-radius: 6px;"></div>
+            </div>
+            <div style="margin-top: 15px; text-align: center; color: var(--text-muted); font-size: 0.8rem;">
+              <i class="fas fa-check-circle" style="color: var(--success);"></i> OS Aprovada e Assinada
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PAIN POINTS -->
+  <section class="pain-section" id="vantagens">
+    <div class="container text-center">
+      <h2 class="section-title">Sua oficina ainda enfrenta <span class="text-primary">esses problemas</span>?</h2>
+      <div class="pain-grid">
+        <div class="pain-card">
+          <div class="pain-icon"><i class="fas fa-file-alt"></i></div>
+          <h3>OS feita à mão</h3>
+          <p>Peças ilegíveis, papéis perdidos e horas gastas digitando informações que o técnico já anotou no campo.</p>
+        </div>
+        <div class="pain-card">
+          <div class="pain-icon"><i class="fas fa-clock"></i></div>
+          <h3>Preventivas no esquecimento</h3>
+          <p>Sem controle real do horímetro, as manutenções preventivas atrasam, gerando quebras caras e inesperadas.</p>
+        </div>
+        <div class="pain-card">
+          <div class="pain-icon"><i class="fas fa-boxes"></i></div>
+          <h3>Peças sumindo</h3>
+          <p>Filtros e componentes usados na oficina sem baixa no estoque. O custo do serviço fica errado.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="features-section" id="funcionalidades">
+    <div class="container text-center">
+      <h2 class="section-title">Tudo que você precisa em <span class="text-primary">um só lugar</span></h2>
+      <p class="section-subtitle">O Lift O.S PRO foi desenhado para o dia a dia do técnico e do gestor de frotas de empilhadeiras.</p>
+      
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon"><i class="fas fa-stopwatch"></i></div>
+          <h3>Controle de Horímetro</h3>
+          <p>Registre fotos do horímetro na hora do serviço. O sistema calcula e avisa quando a próxima preventiva está próxima.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon"><i class="fas fa-signature"></i></div>
+          <h3>Assinatura Digital</h3>
+          <p>O cliente assina na tela do celular do técnico. Documento validado e gerado em PDF instantaneamente.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon"><i class="fas fa-box-open"></i></div>
+          <h3>Estoque Integrado</h3>
+          <p>Peças usadas na OS dão baixa automática no estoque. Controle de custo e margem de lucro em tempo real.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon"><i class="fas fa-file-invoice-dollar"></i></div>
+          <h3>Orçamento Rápido</h3>
+          <p>Crie orçamentos, envie por WhatsApp e transforme em Ordem de Serviço com 1 clique após a aprovação.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon"><i class="fas fa-map-marker-alt"></i></div>
+          <h3>Jornada do Técnico</h3>
+          <p>Registre a saída, chegada no cliente e retorno com prova de GPS. Controle de KM e horas trabalhadas.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon"><i class="fas fa-wifi"></i></div>
+          <h3>100% Mobile e Offline</h3>
+          <p>O técnico trabalha no celular. Se ficar sem internet no cliente, o sistema sincroniza depois automaticamente.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <div class="container">
+      <h2>Pronto para <span class="text-primary">modernizar</span> sua oficina?</h2>
+      <p>Elimine o retrabalho, ganhe a confiança dos clientes e pare de perder dinheiro com peças e horímetros não contabilizados.</p>
+      <a href="https://wa.me/5598988248877?text=Ol%C3%A1!%20Quero%20um%20demo%20do%20Lift%20OS%20PRO" class="btn btn-primary" style="font-size: 1.3rem; padding: 18px 40px;">
+        <i class="fab fa-whatsapp"></i> Quero uma Demonstração
+      </a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer id="contato">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-about">
+          <a href="#" class="logo" style="font-size: 2rem;">LIFT <span>O.S</span></a>
+          <p>O sistema de gestão de Ordens de Serviço e manutenção projetado para oficinas e frotas de empilhadeiras. Eficiência e lucratividade na palma da mão.</p>
+        </div>
+        <div class="footer-links">
+          <h4>Produto</h4>
+          <ul>
+            <li><a href="#funcionalidades">Funcionalidades</a></li>
+            <li><a href="#vantagens">Vantagens</a></li>
+            <li><a href="https://www.LiftOS.pro" target="_blank">Acessar Sistema</a></li>
+          </ul>
+        </div>
+        <div class="footer-links">
+          <h4>Contato</h4>
+          <ul>
+            <li><a href="https://wa.me/5598988248877"><i class="fab fa-whatsapp"></i> (98) 98824-8877</a></li>
+            <li><a href="https://www.LiftOS.pro"><i class="fas fa-globe"></i> www.LiftOS.pro</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2024 Lift O.S PRO. Todos os direitos reservados.</p>
+        <p>Feito com <i class="fas fa-heart text-primary"></i> para mecânicos de empilhadeira</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- WHATSAPP FLOAT BUTTON -->
+  <a href="https://wa.me/5598988248877?text=Ol%C3%A1!%20Vim%20pelo%20site%20e%20quero%20saber%20mais%20sobre%20o%20Lift%20OS" class="whatsapp-float" target="_blank">
+    <i class="fab fa-whatsapp"></i>
+  </a>
+
+</body>
+</html>
